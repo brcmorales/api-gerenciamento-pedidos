@@ -1,9 +1,32 @@
+# API de Gerenciamento de Pedidos
 
-## Exemplos de respostas HTTP
+Projeto acadêmico de Tópicos Avançados em Sistemas de Informação II.
 
-### Criar pedido — `POST /pedidos`
+## Requisitos
+- Node.js 18 ou superior
+- npm
 
-Requisição:
+## Instalação e execução
+```bash
+npm install
+npm start
+```
+A API ficará disponível em `http://localhost:3000`. Verificação: `GET /health`.
+
+## Testes
+```bash
+npm test
+```
+
+## Endpoints
+| Método | Rota | Resultado esperado |
+|---|---|---|
+| POST | `/pedidos` | 201: cria pedido |
+| GET | `/pedidos` | 200: lista pedidos |
+| GET | `/pedidos/:id` | 200 ou 404 |
+| PATCH | `/pedidos/:id/status` | 200, 400 ou 404 |
+
+Exemplo para `POST /pedidos`:
 ```json
 {
   "cliente": "Carlos Silva",
@@ -13,27 +36,30 @@ Requisição:
 }
 ```
 
-Resposta esperada: `201 Created`, com os dados do pedido criado e seu identificador.
+Tipos aceitos: `entrega`, `retirada`. Prioridades: `baixa`, `normal`, `alta`, `urgente`.
+Status: `recebido`, `em_preparacao`, `enviado`, `entregue`, `cancelado`.
 
-### Dados inválidos — `400 Bad Request`
+Transições permitidas: `recebido` → `em_preparacao` ou `cancelado`; `em_preparacao` → `enviado` ou `cancelado`; `enviado` → `entregue`. Os status `entregue` e `cancelado` são finais.
 
-Ocorre quando os dados enviados não atendem às regras de validação, como cliente vazio ou valor igual a zero.
+## Arquitetura
+- `routes`: mapeia métodos HTTP e caminhos.
+- `controllers`: recebe requisições e define respostas HTTP.
+- `services`: valida dados e aplica regras de negócio.
+- `middlewares`: padroniza respostas de erro.
+- `tests`: testes automatizados com Jest e Supertest.
 
-### Pedido não encontrado — `404 Not Found`
+O armazenamento é em memória, portanto os pedidos são apagados quando o processo é reiniciado. Banco de dados não faz parte do escopo mínimo.
 
-Ocorre quando o identificador informado não corresponde a um pedido existente.
+## Testes manuais no Postman
+Execute os cenários do projeto acadêmico: criação válida (201), validação inválida (400), listagem (200), consulta inexistente (404) e atualização de status (200). Salve capturas legíveis na pasta `evidencias/`, mostrando método, URL, corpo quando aplicável, resposta e código HTTP. As capturas devem ser realizadas após executar a API; não são simuladas neste repositório.
 
-### Atualização de status — `PATCH /pedidos/:id/status`
+## Git
+Recomenda-se manter ao menos cinco commits significativos, por exemplo:
+1. estrutura inicial e configuração;
+2. rotas e controllers;
+3. regras de negócio e validações;
+4. tratamento de erros;
+5. testes e documentação.
 
-Requisição:
-```json
-{
-  "status": "em_preparacao"
-}
-```
-
-Uma atualização válida retorna `200 OK`. Transições de status não permitidas retornam `400 Bad Request`.
-
-## Observações sobre os testes
-
-Os testes automatizados são executados com Jest e Supertest usando o comando `npm test`. Os testes manuais no Postman devem ser registrados com capturas reais das requisições e respostas.
+## Uso de IA
+Este projeto foi elaborado com apoio de inteligência artificial para estruturar a documentação e sugerir uma implementação inicial. A equipe deve revisar o código, executar os testes, compreender as decisões e registrar no relatório quais sugestões foram aceitas, modificadas ou rejeitadas e por quê. Não declarar testes executados antes de executá-los.
